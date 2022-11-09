@@ -1,0 +1,119 @@
+apiVersion: cloudwatchlogs.aws.upbound.io/v1beta1
+kind: SubscriptionFilter
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudwatchlogs/v1beta1/subscriptionfilter
+  labels:
+    testing.upbound.io/example-name: test_lambdafunction_logfilter
+  name: test-lambdafunction-logfilter
+spec:
+  forProvider:
+    destinationArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: test_logstream
+    distribution: Random
+    filterPattern: logtype test
+    logGroupName: example
+    region: us-west-1
+    roleArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: iam_for_lambda
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudwatchlogs/v1beta1/subscriptionfilter
+  labels:
+    testing.upbound.io/example-name: iam_for_lambda
+  name: iam-for-lambda
+spec:
+  forProvider:
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+              "Service": "cloudwatch.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+          }
+        ]
+      }
+
+---
+
+apiVersion: kinesis.aws.upbound.io/v1beta1
+kind: Stream
+metadata:
+  annotations:
+    upjet.upbound.io/manual-intervention: "This resource is a dependency of Destination, which needs manual intervention."
+  labels:
+    testing.upbound.io/example-name: test_logstream
+  name: test-logstream
+spec:
+  forProvider:
+    region: us-west-1
+    shardCount: 1
+
+---
+
+apiVersion: cloudwatchlogs.aws.upbound.io/v1beta1
+kind: Group
+metadata:
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    region: us-west-1
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Policy
+metadata:
+  name: example
+  labels:
+    testing.upbound.io/example-name: example
+spec:
+  forProvider:
+    policy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+              "Sid": "VisualEditor0",
+              "Effect": "Allow",
+              "Action": "kinesis:*",
+              "Resource": "*"
+          }
+        ]
+      }
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: RolePolicyAttachment
+metadata:
+  annotations:
+    meta.upbound.io/example-id: backup/v1beta1/selection
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    policyArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+    roleSelector:
+      matchLabels:
+        testing.upbound.io/example-name: iam_for_lambda
+
+
+

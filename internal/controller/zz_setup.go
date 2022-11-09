@@ -92,10 +92,12 @@ import (
 	metricalarm "github.com/upbound/provider-aws/internal/controller/cloudwatch/metricalarm"
 	metricstream "github.com/upbound/provider-aws/internal/controller/cloudwatch/metricstream"
 	definition "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/definition"
+	destination "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/destination"
 	group "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/group"
 	metricfilter "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/metricfilter"
 	resourcepolicy "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/resourcepolicy"
 	stream "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/stream"
+	subscriptionfilter "github.com/upbound/provider-aws/internal/controller/cloudwatchlogs/subscriptionfilter"
 	approvalruletemplate "github.com/upbound/provider-aws/internal/controller/codecommit/approvalruletemplate"
 	approvalruletemplateassociation "github.com/upbound/provider-aws/internal/controller/codecommit/approvalruletemplateassociation"
 	repository "github.com/upbound/provider-aws/internal/controller/codecommit/repository"
@@ -488,10 +490,12 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		metricalarm.Setup,
 		metricstream.Setup,
 		definition.Setup,
+		destination.Setup,
 		group.Setup,
 		metricfilter.Setup,
 		resourcepolicy.Setup,
 		stream.Setup,
+		subscriptionfilter.Setup,
 		approvalruletemplate.Setup,
 		approvalruletemplateassociation.Setup,
 		repository.Setup,

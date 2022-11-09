@@ -1,0 +1,109 @@
+apiVersion: cloudwatchlogs.aws.upbound.io/v1beta1
+kind: Destination
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudwatchlogs/v1beta1/destination
+  labels:
+    testing.upbound.io/example-name: test_destination
+  name: test-destination
+spec:
+  forProvider:
+    region: us-west-1
+    roleArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: iam_for_cloudwatch
+    targetArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: kinesis_for_cloudwatch
+
+---
+
+apiVersion: kinesis.aws.upbound.io/v1beta1
+kind: Stream
+metadata:
+  annotations:
+    upjet.upbound.io/manual-intervention: "This resource is a dependency of Destination, which needs manual intervention."
+  labels:
+    testing.upbound.io/example-name: kinesis_for_cloudwatch
+  name: example
+spec:
+  forProvider:
+    region: us-west-1
+    retentionPeriod: 48
+    shardCount: 1
+    shardLevelMetrics:
+      - IncomingBytes
+      - OutgoingBytes
+    streamModeDetails:
+      - streamMode: PROVISIONED
+    tags:
+      Environment: test
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  annotations:
+    upjet.upbound.io/manual-intervention: "This resource is a dependency of Destination, which needs manual intervention."
+  name: sample-role
+  labels:
+    testing.upbound.io/example-name: iam_for_cloudwatch
+spec:
+  forProvider:
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudwatch.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+
+---
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Policy
+metadata:
+  name: example
+  labels:
+    testing.upbound.io/example-name: example
+spec:
+  forProvider:
+    policy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+              "Sid": "VisualEditor0",
+              "Effect": "Allow",
+              "Action": "kinesis:*",
+              "Resource": "*"
+          }
+        ]
+      }
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: RolePolicyAttachment
+metadata:
+  annotations:
+    meta.upbound.io/example-id: backup/v1beta1/selection
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    policyArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+    roleSelector:
+      matchLabels:
+        testing.upbound.io/example-name: iam_for_cloudwatch
+
+
